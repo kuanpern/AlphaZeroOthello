@@ -1,0 +1,11 @@
+anytree==2.4.3
+cycler==0.10.0
+dill==0.2.7.1
+kiwisolver==1.0.1
+matplotlib==2.2.2
+numpy==1.14.3
+pyparsing==2.2.0
+python-dateutil==2.7.3
+pytz==2018.4
+PyYAML==3.12
+six==1.11.0

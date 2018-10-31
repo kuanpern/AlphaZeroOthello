@@ -1,0 +1,108 @@
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.1/c3.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.1/c3.min.js" charset="utf-8"></script>
+
+
+<script>
+move_n = 0;
+g_confidences = [];
+for (var i=1; i<31;i++){
+	g_confidences.push(-1);
+} // end for
+
+function put_new_confidence(val){
+	move_n = move_n + 1;
+
+//	var x = chart.data.values('x');
+//	var t = chart.data.values('thr');
+//	var c = chart.data.values('confidence');
+	g_confidences[move_n] = Math.round(val * 10) / 10;
+
+//	var p = ['x'];  var q = p.concat(x);
+//	var q = ['thr'];        q.concat(t);
+//	var r = ['confidence']; p.concat(c);
+//	var new_chart_data = [p, q, r];
+
+    chart.load({
+        columns:[g_confidences]
+    });
+//    console.log(c);
+//    console.log('hi');
+
+	
+} // end function
+
+
+//    chart.load({
+//        columns: [
+//            ['data1', 230, 190, 300, 500, 300, 400]
+//        ]
+//    });
+</script>
+
+<div id="chart" style="width:700px">
+<script>
+
+var x = ['x'];
+var thr = ['thr'];
+var confidences = ['confidence'];
+for (var i=1; i<31;i++){
+	x.push(i);
+	thr.push(50);
+	confidences.push(-1);
+} // end for
+var chart_data = [x, thr, confidences];
+var chart_data = [x, thr];
+
+var chart = c3.generate({
+    bindto: '#chart',
+//    axis: {min: {y: 0}, max: {y: 100}},
+    legend: { show: false },
+    data: {
+      x: 'x',
+      columns: chart_data,
+      type: 'bar',
+      types: {
+        confidence: 'bar',
+        thr: 'line',
+      },
+    },
+    bar: {
+        width: {
+            ratio: 0.8 // this makes bar width 50% of length between ticks
+        }
+        // or
+        //width: 100 // this makes bar width 100px
+    }
+});
+chart.axis.max({y: 90});
+chart.axis.min({y: 10});
+</script>
+
+
+<script> 
+function test(){
+	for (var i=0; i<31; ++i){
+	  put_new_confidence(Math.random()*100);
+	} // end for
+} // end fucntion
+</script>
+
+<button type="button" onclick="test()"> click me </button>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

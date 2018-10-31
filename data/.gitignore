@@ -1,0 +1,3 @@
+*.json
+*.dill
+__pycache__/*

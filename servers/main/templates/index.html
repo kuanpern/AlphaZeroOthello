@@ -1,0 +1,209 @@
+<html>
+  <head>
+    <title>MCTS Game console</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script src="js/drawboard.js"></script>
+    <script src="js/drawbars.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.1/c3.min.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js" charset="utf-8"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.1/c3.min.js" charset="utf-8"></script>
+
+    <script type="text/javascript" charset="utf-8">
+
+      var socket;
+
+      function play_move(i, j){
+		console.log("clicked on: " + "("+i+", "+j+")");
+        socket.emit('input_move', i+" "+j);
+      } // end function
+
+
+      $(document).ready(function(){
+        socket = io.connect('http://' + document.domain + ':' + location.port + '/console');
+
+        socket.on('message', function(data) {
+          $('#console').val($('#console').val() + data.msg + '\n');
+          $('#console').scrollTop($('#console')[0].scrollHeight);
+        });
+
+        // ######################################### //
+        // ####### read and draw a new board ####### //
+        // ######################################### //
+        socket.on('put_confidence', function(data) {
+          console.log("received confidence score "+data);
+//          $('#chart_area').html(data);
+//          $('#chart_area').append('<p>'+data+'</p><br>');
+			put_new_confidence(parseFloat(data)*100);
+        });
+        // ############################################## //
+        // ############################################## //
+
+
+        // ######################################### //
+        // ####### read and draw a new board ####### //
+        // ######################################### //
+        socket.on('draw_new_board', function(state) {
+          console.log("received new board");
+          var data = draw_board(state);
+          $('#board_area').html(data);
+        });
+        // ############################################## //
+        // ############################################## //
+
+
+        // ############################################## //
+        // ####### READ INPUT MOVE SEND TO SERVER ####### //
+        // ############################################## //
+        $('#input_move').keypress(function(e) {
+          var code = e.keyCode || e.which;
+          if (code == 13) {
+            move_txt = $('#input_move').val();
+            $('#input_move').val('');
+            socket.emit('input_move', move_txt);
+          }
+        });
+        // ############################################## //
+        // ############################################## //
+
+        // ######################################### //
+        // ############ AGENT P LOGGING ############ //
+        // ######################################### //
+        socket.on('P_log', function(data) {
+          val = $("#txt_AgentPlog").val();
+          if (val.length > 5000){val=val.substring(8000, val.length);}
+          val = val+data;
+          $("#txt_AgentPlog").val(val);
+          var e = $('#txt_AgentPlog');
+          $(e).scrollTop($(e)[0].scrollHeight);
+        });
+        // ############################################## //
+        // ############################################## //
+
+
+        // ######################################### //
+        // ############ AGENT Q LOGGING ############ //
+        // ######################################### //
+        socket.on('Q_log', function(data) {
+          val = $("#txt_AgentQlog").val();
+          if (val.length > 5000){val=val.substring(8000, val.length);}
+          val = val+data;
+          $('#txt_AgentQlog').val(val);
+          var e = $('#txt_AgentQlog');
+          $(e).scrollTop($(e)[0].scrollHeight);
+        });
+        // ############################################## //
+        // ############################################## //
+
+
+        // ######################################### //
+        // ############# ROOT LOGGING ############## //
+        // ######################################### //
+        socket.on('R_log', function(data) {
+          val = $("#txt_rootLog").val();
+          if (val.length > 5000){val=val.substring(8000, val.length);}
+          val = val+data;
+          $('#txt_rootLog').val(val);
+          var e = $('#txt_rootLog');
+          $(e).scrollTop($(e)[0].scrollHeight);
+        });
+        // ############################################## //
+        // ############################################## //
+
+      });
+
+    </script>
+
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+      $(function() {
+        var state = [
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+          [0, 0, 0, -1, 1, 0, 0, 0], 
+          [0, 0, 0, 1, -1, 0, 0, 0], 
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+          [0, 0, 0, 0, 0, 0, 0, 0], 
+        ];
+        var data = draw_board(JSON.stringify(state));
+        $('#board_area').html(data);
+
+       
+        $("#txt_AgentPlog").val("");
+        $('#txt_AgentQlog').val("");
+        $('#txt_rootLog').val("");
+
+
+      }); // end 
+    </script>
+
+
+    <style>
+     .logarea {
+     width:400px; 
+     height:560px;
+     border:solid 1px;
+     overflow-y: scroll;
+     float: left;
+     }
+
+     .logbox {
+     float: left;
+     margin-left : 5px;
+     margin-right: 5px;
+     }
+    </style>
+
+
+  </head>
+
+
+  <body>
+    <h1>MCTS Game console</h1>
+
+      <!-- BOARD -->
+      <div id="board" style="float:left">
+       <label><b>Board</b></label><br>
+       <div id="board_area" style="width:560px; height:560px; border-style:solid; border-width:1px"></div>
+      </div>
+
+      <div class="logbox">
+      <label><b>Main Log</b></label><br>
+      <textarea id="txt_rootLog"   class="logarea" placeholder="waiting ..."></textarea>
+      </div>
+
+      <div class="logbox">
+      <label><b>Agent P</b></label><br>
+      <textarea id="txt_AgentPlog" class="logarea" placeholder="waiting ..."></textarea>
+      </div>
+
+      <div class="logbox">
+      <label><b>Agent Q</b></label><br>
+      <textarea id="txt_AgentQlog" class="logarea" placeholder="waiting ..."></textarea>
+      </div>
+
+      <br style="clear:both;">
+      <hr>
+      <br style="clear:both;">
+
+
+      <div id="console_input" style="width:560px; float:left">
+      <label><b> Console </b> </label><br>
+      <label> Enter your move: </label>
+      <input id="input_move" size="80" style="width:60px"><br>
+      <button type="button" onclick="put_new_confidence(30)"> put random confidence </button>
+      </div>
+
+      <div id="div_confidence" style="float:left">
+      <label><b> Confidence </b></label> <br>
+      <div id="chart_area" style="float:left; min-height:200px; min-width:1200px;"></div>
+      </div>
+
+  </body>
+</html>

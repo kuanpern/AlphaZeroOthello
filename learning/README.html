@@ -1,0 +1,69 @@
+<!doctype html public "-//W3C//DTD HTML 4.0 Transitional //EN">
+<html>
+<head>
+  <meta name="GENERATOR" content="mkd2html 2.1.8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta http-equiv="Content-Type"
+        content="text/html; charset=utf-8"></head>
+<body>
+<h3>Loss function</h3>
+
+<p><a href="https://www.codecogs.com/eqnedit.php?latex=l&space;=&space;(z&space;-&space;v)^2&space;-&space;\pi^T&space;\log&space;p&space;&plus;&space;c&space;\left&space;\|&space;\theta&space;\right&space;\|&space;^2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?l&space;=&space;(z&space;-&space;v)^2&space;-&space;\pi^T&space;\log&space;p&space;&plus;&space;c&space;\left&space;\|&space;\theta&space;\right&space;\|&space;^2" title="l = (z - v)^2 - \pi^T \log p + c \left \| \theta \right \| ^2" /></a></p>
+
+<h3>Network architecture</h3>
+
+<p>A single convolutional block followed by either 19 or 39 residual blocks.</p>
+
+<p>The convolutional block applies the following modules:</p>
+
+<ol>
+<li>A convolution of 256 filters of kernel size 3 × 3 with stride 1</li>
+<li>Batch normalisation</li>
+<li>A rectifier non-linearity</li>
+</ol>
+
+
+<p>Each residual block applies the following modules sequentially to its input:</p>
+
+<ol>
+<li>A convolution of 256 filters of kernel size 3 × 3 with stride 1</li>
+<li>Batch normalisation</li>
+<li>A rectifier non-linearity</li>
+<li>A convolution of 256 filters of kernel size 3 × 3 with stride 1</li>
+<li>Batch normalisation</li>
+<li>A skip connection that adds the input to the block</li>
+<li>A rectifier non-linearity</li>
+</ol>
+
+
+<p>The output of the residual tower is passed into two separate “heads” for computing the policy
+and value respectively. The policy head applies the following modules:</p>
+
+<ol>
+<li>A convolution of 2 filters of kernel size 1 × 1 with stride 1</li>
+<li>Batch normalisation</li>
+<li>A rectifier non-linearity</li>
+<li>A fully connected linear layer that outputs a vector of size 19 2 + 1 = 362 corresponding to logit probabilities for all intersections and the pass move</li>
+</ol>
+
+
+<p>The value head applies the following modules:</p>
+
+<ol>
+<li>A convolution of 1 filter of kernel size 1 × 1 with stride 1</li>
+<li>Batch normalisation</li>
+<li>A rectifier non-linearity</li>
+<li>A fully connected linear layer to a hidden layer of size 256</li>
+<li>A rectifier non-linearity</li>
+<li>A fully connected linear layer to a scalar</li>
+<li>A tanh non-linearity outputting a scalar in the range [−1, 1]</li>
+</ol>
+
+
+<h4>Reference</h4>
+
+<ul>
+<li><a href="https://www.nature.com/articles/nature24270"> DeepMind Nature paper </a></li>
+</ul>
+
+</body>
+</html>

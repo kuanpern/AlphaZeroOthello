@@ -2,7 +2,29 @@
 Migrating AlphaGO Zero strategy to play Othello.
 The package is organized such that the strategy is flexible enough to be plug-and-play to play different games/scenarios.
 
+
+#### Demo
 note: This repo also contains socket-powered real-time gameplay engine and web-browser interface.
+
+```
+# start the main server
+cd $project_home/servers; venv/bin/python app.py
+
+# sockets connections
+cd $project_home/servers/relay; venv/bin/python relayer.py --input sock_pairs.yaml 
+
+# start the MCTS gameplay
+cd $project_home/; venv/bin/python Othello_interactive_play_main.py   \
+  --agent_p pars/random_predictor.dill   \
+  --agent_q pars/random_predictor.dill   \
+  --config_p pars/config_sample.yaml     \
+  --config_q pars/config_sample.yaml     \
+  --max_length 62   \
+  --repo_size 30    \
+  --outfile output/test_run_02.dill
+```
+![Alt text](images/interactive_demo.png?raw=true "interactive gameplay demo")
+
 
 ### Installation
 ```

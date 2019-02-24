@@ -2,6 +2,7 @@
 Migrating AlphaGO Zero strategy to play Othello.
 The package is organized such that the strategy is flexible enough to be plug-and-play to play different games/scenarios.
 
+note: master branch currently contains a vanilla MCTS implementation. Zero's implementation resides in another branch (integration work in progress)
 
 #### Demo
 note: This repo also contains socket-powered real-time gameplay engine and web-browser interface.

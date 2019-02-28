@@ -94,16 +94,28 @@ class ZeroDataNode(GameDataNode):
 	def append_children(self, children):
 		for child in children:
 			child.parent = self
-			self.child_dict[tuple(child.action)] = child
+			name = child.action
+			if name != 'PASS':
+				self.child_dict[tuple(name)] = child
+			else:
+				self.child_dict[name] = child
+			# end if
 		# end for
 		self.is_expanded = True
 
 		# statistics to keep
+		self.reset_stats(children)
+		self.P = None # <- to be evaluated
+	# end def
+
+	def reset_stats(self, children=None):
+		if children is None:
+			children = self.children
+		# end if
 		_zeros = {child.action: 0 for child in children}
 		self.N = copy.deepcopy(_zeros)
 		self.W = copy.deepcopy(_zeros)
 		self.Q = copy.deepcopy(_zeros)
-		self.P = None # <- to be evaluated
 	# end def
 
 	def assign_probs(self, P):

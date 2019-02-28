@@ -1,3 +1,4 @@
+import copy
 import numpy
 from MCTS.utils import *
 
@@ -33,31 +34,19 @@ class OthelloGame(Game):
 		# special case = PASS
 		if output == []:
 			action = 'PASS'
-			next_state = state[1:]
+			mem = len(state)
+			next_state = copy.deepcopy(state)
 			# - copy the last state instance but change the player
 			next_state_i = stateType(
-				data  = next_state[-1].data, 
-				player=-next_state[-1].player
+				data  = state[-1].data, 
+				player=-state[-1].player
 			) # end next_state_i
 			next_state.append(next_state_i)
+			next_state = next_state[-mem:]
 			output = [stateActionType(state=next_state, action=action)]
 		# end if
 		return output
 	# end def
-
-	'''
-	@staticmethod
-	def get_winner(game_record):
-		action_trace = game_record.action_trace
-		if action_trace[-1] != 'PASS':
-			return None
-		if action_trace[-2] != 'PASS':
-			return None
-
-		state = game_record.state_trace[-1]
-		return numpy.sign(state[-1].data.sum())
-	# end def
-	'''
 
 	@staticmethod
 	def get_winner(state):
@@ -73,13 +62,16 @@ class OthelloGame(Game):
 
 		# both sides have to pass
 		if OthelloGame.list_nexts(state) == ['PASS']:
-			next_state = state[1:]
+			mem = len(state)
+			next_state = copy.deepcopy(state)
 			# - copy the last state instance but change the player
 			next_state_i = stateType(
-				data  = next_state[-1].data, 
-				player=-next_state[-1].player
+				data  = state[-1].data, 
+				player=-state[-1].player
 			) # end next_state_i
 			next_state.append(next_state_i)
+			next_state = next_state[-mem:]
+	
 			if OthelloGame.list_nexts(next_state) == ['PASS']:
 				return cur_winner(state)
 			# end if
@@ -92,13 +84,15 @@ class OthelloGame(Game):
 
 		# special case of "PASS"
 		if action == 'PASS':
-			next_state = state[1:]
+			mem = len(state)
+			next_state = copy.deepcopy(state)
 			# - copy the last state instance but change the player
 			next_state_i = stateType(
-				data  = next_state[-1].data, 
-				player=-next_state[-1].player
+				data  = state[-1].data, 
+				player=-state[-1].player
 			) # end next_state_i
 			next_state.append(next_state_i)
+			next_state = next_state[-mem:]
 			return next_state
 		# end if
 
@@ -190,7 +184,7 @@ class OthelloHelper:
 	# end def
 
 	@staticmethod
-	def print_board(state, title="", outfilename=None):
+	def print_board(state, title="", highlight=None, outfilename=None):
 		import matplotlib.pyplot as plt
 		board  = state.data
 		player = state.player
@@ -221,6 +215,14 @@ class OthelloHelper:
 				# end if
 			# end for
 		# end for
+
+		if highlight is not None:
+			if highlight != 'PASS':
+				i, j = highlight
+				_ = plt.Circle((i*step, j*step), step/2.*0.9, facecolor='None', edgecolor='red')
+				ax.add_artist(_)
+			# end if
+		# end if
 
 		plt.xlim(0-step/2., 1-step/2.)
 		plt.ylim(0-step/2., 1-step/2.)

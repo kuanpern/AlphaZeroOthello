@@ -45,6 +45,7 @@ class OthelloGame(Game):
 		return output
 	# end def
 
+	'''
 	@staticmethod
 	def get_winner(game_record):
 		action_trace = game_record.action_trace
@@ -56,16 +57,22 @@ class OthelloGame(Game):
 		state = game_record.state_trace[-1]
 		return numpy.sign(state[-1].data.sum())
 	# end def
+	'''
 
 	@staticmethod
-	def end_game(state):
+	def get_winner(state):
+		def cur_winner(state):
+			return numpy.sign(state[-1].data.sum())
+		# end def
+
 		# all filled up
-		if 0 not in state.data.flatten().tolist():
-			return True
+		if 0 not in state[-1].data.flatten().tolist():
+			# end game is True, winner 
+			return cur_winner(state)
 		# end if
 
 		# both sides have to pass
-		if self.list_nexts(state) == ['PASS']:
+		if OthelloGame.list_nexts(state) == ['PASS']:
 			next_state = state[1:]
 			# - copy the last state instance but change the player
 			next_state_i = stateType(
@@ -73,13 +80,12 @@ class OthelloGame(Game):
 				player=-next_state[-1].player
 			) # end next_state_i
 			next_state.append(next_state_i)
-			if self.list_nexts(next_state) == ['PASS']:
-				return True
+			if OthelloGame.list_nexts(next_state) == ['PASS']:
+				return cur_winner(state)
 			# end if
 		# end if
-		return False
+		return None
 	# end def
-
 
 	@staticmethod
 	def transform(state, action):

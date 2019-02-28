@@ -1,3 +1,4 @@
+import copy
 import shlex
 from anytree import Node, RenderTree
 from anytree.dotexport import RenderTreeGraph
@@ -71,7 +72,7 @@ class GameDataNode(TreeNode):
 			action    = item.action
 
 			# create a node for each next state
-			node = self.__class__(Game=self.Game, name=repr(action), player=-self.player)
+			node = self.__class__(Game=self.Game, name=action, player=-self.player)
 			node.state  = new_state
 			node.action = action
 
@@ -114,18 +115,54 @@ class ZeroDataNode(GameDataNode):
 		self.P = {key: val/_sum for key, val in P.items()}
 	# end def
 
-	def backprob(v):
-		self.W += v
-		self.N += 1
-		self.Q = self.W / self.N
-		if self.parent is not None:
-			self.parent.backprob(v)
+	def backprob(self, v):
+		'''back-propagation of v'''
+		if self.parent is None:
+			return
 		# end if
+
+		a = self.name
+#		print ('name:', a)
+#		print (self.parent.W.keys())
+		self.parent.W[a] += v
+		self.parent.N[a] += 1
+		self.parent.Q[a] = self.parent.W[a] / self.parent.N[a]
+		self.parent.backprob(v)
+
+#		self.W += v
+#		self.N += 1
+#		self.Q = self.W / self.N
+#		if self.parent is not None:
+#			self.parent.backprob(v)
+#		# end if
+	# end def
+
+	def print_tree(self):
+		lines = self._print_tree().splitlines()
+		lines = [line for line in lines if '@' not in line]
+		lines = '\n'.join(lines)
+		return lines
+	# end def
+
+	def _print_tree(self, level=0):
+		if self.parent is None:
+			out_p = '/'
+		elif self.is_expanded is False:
+			out_p = '@' # edge leaf node
+		else: 
+			out_p = ' '*level+'-%s: %4.2f' % (self.name, self.parent.Q[self.name],)
+		# end if
+
+		for child in self.children:
+			out_q = child._print_tree(level = level + 1)
+			out_p = out_p + '\n' + out_q
+		# end for
+		return out_p
 	# end def
 
 	def end_game(self):
 		if hasattr(self, 'is_end_game') is False:
-			self.is_end_game = self.Game.end_game(self)
+			self.is_end_game = self.Game.end_game(self.state)
 		# end if
 		return self.is_end_game
 	# end def
